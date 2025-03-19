@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("express")
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require('dotenv').config()
@@ -15,8 +15,10 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use(express.json());
 
+const password = bcrypt.hashSync("password123",10)
+
 const users = [
-    { id: 1, email: "user@example.com", password: bcrypt.hashSync("password123",10)}
+    { id: 1, email: "user@example.com", password: password}
 ];
 
 app.post("/login", async (req,res) => {
@@ -29,14 +31,12 @@ app.post("/login", async (req,res) => {
 
     const user = users.find((u) => u.email === email);
     if (!user) {
-        return
-    res.status(400).json({ message: "invalid email or password"});
+        return res.status(400).json({ message: "invalid email or password"});
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if(!isMatch) {
-        return
-        res.status(400).json({ message: "Invalid email or password "});
+        return res.status(400).json({ message: "Invalid email or password "});
     }
 
     const token = jwt.sign({ id: user.id, email: user.email },
